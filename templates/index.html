@@ -21,10 +21,11 @@
     console.log(element.id);
     auth2.attachClickHandler(element, {},
         function(googleUser) {
-          document.getElementById('name').innerText = "Signed in: " +
+          document.getElementById('name').innerText = "Name: " +
               googleUser.getBasicProfile().getName();
           document.getElementById('email').innerText = "Email: " +
               googleUser.getBasicProfile().getEmail();
+          document.getElementById('gSignInWrapper').style.display = 'none';
         }, function(error) {
           alert(JSON.stringify(error, undefined, 2));
         });
