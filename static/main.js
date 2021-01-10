@@ -10,9 +10,9 @@ App.start = function() {
     auth2 = gapi.auth2.init({
       client_id: '191815373223-e6gimsdlrqq6strtcsqstgmr426tjavj.apps.googleusercontent.com',
       cookiepolicy: 'single_host_origin',
-      // Request scopes in addition to 'profile' and 'email'
       scope: 'https://www.googleapis.com/auth/drive.file'
     });
+    // document.getElementById('newFileBtn').style.display = 'none';
     attachSignin(document.getElementById('customBtn'));
   });
 };
@@ -21,15 +21,18 @@ function attachSignin(element) {
   console.log(element.id);
   auth2.attachClickHandler(element, {},
       function(googleUser) {
-        document.getElementById('name').innerText = "Name: " +
-            googleUser.getBasicProfile().getName();
-        document.getElementById('email').innerText = "Email: " +
-            googleUser.getBasicProfile().getEmail();
+        document.getElementById('name').innerText = "Name: " + googleUser.getBasicProfile().getName();
+        document.getElementById('email').innerText = "Email: " + googleUser.getBasicProfile().getEmail();
         document.getElementById('gSignInWrapper').style.display = 'none';
-        saveFiles();
+        document.getElementById('newFileBtn').style.display = 'block';
+        // saveFiles();
       }, function(error) {
         alert(JSON.stringify(error, undefined, 2));
       });
+};
+
+function createFiles() {
+
 };
 
 function saveFiles() {
