@@ -25,6 +25,7 @@ function attachSignin(element) {
         document.getElementById('email').innerText = "Email: " + googleUser.getBasicProfile().getEmail();
         document.getElementById('gSignInWrapper').style.display = 'none';
         document.getElementById('newFileBtn').style.display = 'block';
+        // document.getElementById('newFileBtn').style.display = 'block';
         // saveFiles();
       }, function(error) {
         alert(JSON.stringify(error, undefined, 2));
@@ -32,10 +33,14 @@ function attachSignin(element) {
 };
 
 function createFiles() {
-
+  var saveFileBtn = document.createElement("BUTTON");
+  saveFileBtn.innerHTML = "Save file";
+  saveFileBtn.addEventListener("click", saveFiles);
+  document.body.appendChild(saveFileBtn);
 };
 
 function saveFiles() {
+  console.log('saveFiles() is called');
   var fileContent = 'sample text';
   var file = new Blob([fileContent], {type: 'text/plain'});
   var metadata = {
