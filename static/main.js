@@ -33,20 +33,31 @@ function attachSignin(element) {
 };
 
 function createFiles() {
+  document.getElementById('newFileBtn').style.display = 'none';
+  var fileNameLabel = document.createTextNode("File name:");
+  document.body.appendChild(fileNameLabel);
+  document.body.appendChild(document.createElement("br"));
+  var fileNameField = document.createElement("INPUT");
+  fileNameField.setAttribute("type", "text");
+  document.body.appendChild(fileNameField);
+  document.body.appendChild(document.createElement("br"));
+  var fileContentLabel = document.createTextNode("File content:");
+  document.body.appendChild(fileContentLabel);
+  document.body.appendChild(document.createElement("br"));
+  var fileContentField = document.createElement("TEXTAREA");
+  document.body.appendChild(fileContentField);
+  document.body.appendChild(document.createElement("br"));
   var saveFileBtn = document.createElement("BUTTON");
   saveFileBtn.innerHTML = "Save file";
-  saveFileBtn.addEventListener("click", saveFiles);
   document.body.appendChild(saveFileBtn);
+  saveFileBtn.onclick = function() {saveFiles(fileNameField.value, fileContentField.value)};
 };
 
-function saveFiles() {
-  console.log('saveFiles() is called');
-  var fileContent = 'sample text';
+function saveFiles(fileName, fileContent) {
   var file = new Blob([fileContent], {type: 'text/plain'});
   var metadata = {
-    'name': 'sampleName',
+    'name': fileName,
     'mimeType': 'text/plain',
-    // 'parents': ['16M-iwIcquv7znE0XT6nellIQM6lFWXon'],
   };
 
   var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
