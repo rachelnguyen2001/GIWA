@@ -12,7 +12,6 @@ App.start = function() {
       cookiepolicy: 'single_host_origin',
       scope: 'https://www.googleapis.com/auth/drive.file'
     });
-    // document.getElementById('newFileBtn').style.display = 'none';
     attachSignin(document.getElementById('customBtn'));
   });
 };
@@ -34,23 +33,35 @@ function attachSignin(element) {
 
 function createFiles() {
   document.getElementById('newFileBtn').style.display = 'none';
+  var createFilePanel = document.createElement("div");
+  createFilePanel.setAttribute("id", "createFilePanel");
   var fileNameLabel = document.createTextNode("File name:");
-  document.body.appendChild(fileNameLabel);
-  document.body.appendChild(document.createElement("br"));
+  createFilePanel.appendChild(fileNameLabel);
+  createFilePanel.appendChild(document.createElement("br"));
   var fileNameField = document.createElement("INPUT");
   fileNameField.setAttribute("type", "text");
-  document.body.appendChild(fileNameField);
-  document.body.appendChild(document.createElement("br"));
+  createFilePanel.appendChild(fileNameField);
+  createFilePanel.appendChild(document.createElement("br"));
   var fileContentLabel = document.createTextNode("File content:");
-  document.body.appendChild(fileContentLabel);
-  document.body.appendChild(document.createElement("br"));
+  createFilePanel.appendChild(fileContentLabel);
+  createFilePanel.appendChild(document.createElement("br"));
   var fileContentField = document.createElement("TEXTAREA");
-  document.body.appendChild(fileContentField);
-  document.body.appendChild(document.createElement("br"));
+  createFilePanel.appendChild(fileContentField);
+  createFilePanel.appendChild(document.createElement("br"));
   var saveFileBtn = document.createElement("BUTTON");
   saveFileBtn.innerHTML = "Save file";
-  document.body.appendChild(saveFileBtn);
+  createFilePanel.appendChild(saveFileBtn);
   saveFileBtn.onclick = function() {saveFiles(fileNameField.value, fileContentField.value)};
+  var backBtn = document.createElement("BUTTON");
+  backBtn.innerHTML = "Back";
+  backBtn.onclick = function() {backToMain()};
+  createFilePanel.appendChild(backBtn);
+  document.body.appendChild(createFilePanel);
+};
+
+function backToMain() {
+  document.getElementById("createFilePanel").style.display = 'none';
+  document.getElementById("newFileBtn").style.display = 'block';
 };
 
 function saveFiles(fileName, fileContent) {
@@ -72,6 +83,8 @@ function saveFiles(fileName, fileContent) {
   }).then((res) => {
     return res.json();
   }).then(function(val) {
+    var savedFileMess = document.createTextNode("File is saved to your Google Drive!");
+    document.body.appendChild(savedFileMess);
     console.log(val);
   });
 };
