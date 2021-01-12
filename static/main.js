@@ -23,7 +23,7 @@ function attachSignin(element) {
         document.getElementById('name').innerText = "Name: " + googleUser.getBasicProfile().getName();
         document.getElementById('email').innerText = "Email: " + googleUser.getBasicProfile().getEmail();
         document.getElementById('gSignInWrapper').style.display = 'none';
-        document.getElementById('newFileBtn').style.display = 'block';
+        document.getElementById('btnPanel').style.display = 'block';
         // document.getElementById('newFileBtn').style.display = 'block';
         // saveFiles();
       }, function(error) {
@@ -32,7 +32,7 @@ function attachSignin(element) {
 };
 
 function createFiles() {
-  document.getElementById('newFileBtn').style.display = 'none';
+  document.getElementById('btnPanel').style.display = 'none';
   var createFilePanel = document.createElement("div");
   createFilePanel.setAttribute("id", "createFilePanel");
   var fileNameLabel = document.createTextNode("File name:");
@@ -54,14 +54,14 @@ function createFiles() {
   saveFileBtn.onclick = function() {saveFiles(fileNameField.value, fileContentField.value)};
   var backBtn = document.createElement("BUTTON");
   backBtn.innerHTML = "Back";
-  backBtn.onclick = function() {backToMain()};
   createFilePanel.appendChild(backBtn);
   document.body.appendChild(createFilePanel);
+  backBtn.onclick = function() {backToMain()};
 };
 
 function backToMain() {
   document.getElementById("createFilePanel").style.display = 'none';
-  document.getElementById("newFileBtn").style.display = 'block';
+  document.getElementById("btnPanel").style.display = 'block';
 };
 
 function saveFiles(fileName, fileContent) {
@@ -84,7 +84,8 @@ function saveFiles(fileName, fileContent) {
     return res.json();
   }).then(function(val) {
     var savedFileMess = document.createTextNode("File is saved to your Google Drive!");
-    document.body.appendChild(savedFileMess);
+    document.getElementById("createFilePanel").appendChild(document.createElement("br"));
+    document.getElementById("createFilePanel").appendChild(savedFileMess);
     console.log(val);
   });
 };
