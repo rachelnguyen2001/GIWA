@@ -1,77 +1,71 @@
 window.addEventListener("load", function(event){
   App.start();
-})
+});
 
 var App = {};
 var googleUser = {};
-App.start = function() {
-    gapi.load('auth2', function(){
-    // Retrieve the singleton for the GoogleAuth library and set up the client.
-    auth2 = gapi.auth2.init({
-      client_id: '191815373223-e6gimsdlrqq6strtcsqstgmr426tjavj.apps.googleusercontent.com',
-      cookiepolicy: 'single_host_origin',
-      scope: 'https://www.googleapis.com/auth/drive.file'
-    });
-    attachSignin(document.getElementById('customBtn'));
+App.start = initializeApp;
+
+function initializeApp() {
+  gapi.load('auth2', initializeGoogleSignIn());
+};
+
+function initializeGoogleSignIn() {
+  auth2 = gapi.auth2.init({
+    // Client ID retrieved from above
+    client_id: '191815373223-e6gimsdlrqq6strtcsqstgmr426tjavj.apps.googleusercontent.com',
+    cookiepolicy: 'single_host_origin',
+    // Access files in the user's Google Drive
+    scope: 'https://www.googleapis.com/auth/drive.file'
   });
+  detectSignin(document.getElementById('customBtn'));
 };
 
-function attachSignin(element) {
+function detectSignin(element) {
   console.log(element.id);
-  auth2.attachClickHandler(element, {},
-      function(googleUser) {
-        document.getElementById('name').innerText = "Name: " + googleUser.getBasicProfile().getName();
-        document.getElementById('email').innerText = "Email: " + googleUser.getBasicProfile().getEmail();
-        document.getElementById('gSignInWrapper').style.display = 'none';
-        document.getElementById('btnPanel').style.display = 'block';
-        // document.getElementById('newFileBtn').style.display = 'block';
-        // saveFiles();
-      }, function(error) {
-        alert(JSON.stringify(error, undefined, 2));
-      });
+  auth2.attachClickHandler(element, {}, signInSucceed, signInFail);
 };
 
-function createFiles() {
-  document.getElementById('btnPanel').style.display = 'none';
-  var createFilePanel = document.createElement("div");
-  createFilePanel.setAttribute("id", "createFilePanel");
-  var fileNameLabel = document.createTextNode("File name:");
-  createFilePanel.appendChild(fileNameLabel);
-  createFilePanel.appendChild(document.createElement("br"));
-  var fileNameField = document.createElement("INPUT");
-  fileNameField.setAttribute("type", "text");
-  createFilePanel.appendChild(fileNameField);
-  createFilePanel.appendChild(document.createElement("br"));
-  var fileContentLabel = document.createTextNode("File content:");
-  createFilePanel.appendChild(fileContentLabel);
-  createFilePanel.appendChild(document.createElement("br"));
-  var fileContentField = document.createElement("TEXTAREA");
-  createFilePanel.appendChild(fileContentField);
-  createFilePanel.appendChild(document.createElement("br"));
-  var saveFileBtn = document.createElement("BUTTON");
-  saveFileBtn.innerHTML = "Save file";
-  createFilePanel.appendChild(saveFileBtn);
-  saveFileBtn.onclick = function() {saveFiles(fileNameField.value, fileContentField.value)};
-  var backBtn = document.createElement("BUTTON");
-  backBtn.innerHTML = "Back";
-  createFilePanel.appendChild(backBtn);
-  document.body.appendChild(createFilePanel);
-  backBtn.onclick = function() {backToMain()};
+function signInFail(error) {
+  alert(JSON.stringify(error, undefined, 2));
 };
 
-function backToMain() {
-  document.getElementById("createFilePanel").style.display = 'none';
-  document.getElementById("btnPanel").style.display = 'block';
+function signInSucceed(googleUser) {
+  var userInfo = getUserInfo(googleUser);
+  document.getElementById('name').innerText = "Name: " + userInfo[0];
+  document.getElementById('email').innerText = "Email: " + userInfo[1];
+  document.getElementById('gSignInWrapper').style.display = 'none';
+  document.getElementById('btnPanel').style.display = 'block';
 };
 
-function saveFiles(fileName, fileContent) {
+function getUserInfo(googleUser) {
+  return [googleUser.getBasicProfile().getName(), googleUser.getBasicProfile().getEmail()];
+};
+
+function createFile() {
+  document.getElementById('newFileForm').style.display = 'block';
+};
+
+function saveFileToDriveFromApp() {
+  var fileName = document.getElementById('fileName').value;
+  var fileContent = document.getElementById('fileContent').value;
+  saveFileToDrive(fileName, fileContent);
+}
+
+function saveFileToDriveSucceed() {
+  var savedFileMess = document.createTextNode("File is saved to your Google Drive!");
+  document.getElementById("newFileForm").appendChild(document.createElement("br"));
+  document.getElementById("newFileForm").appendChild(savedFileMess);
+}
+
+function saveFileToDrive(fileName, fileContent) {
   var file = new Blob([fileContent], {type: 'text/plain'});
   var metadata = {
     'name': fileName,
     'mimeType': 'text/plain',
   };
 
-  var accessToken = gapi.auth.getToken().access_token; // Here gapi is used for retrieving the access token.
+  var accessToken = gapi.auth.getToken().access_token;
   var form = new FormData();
   form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
   form.append('file', file);
@@ -83,9 +77,7 @@ function saveFiles(fileName, fileContent) {
   }).then((res) => {
     return res.json();
   }).then(function(val) {
-    var savedFileMess = document.createTextNode("File is saved to your Google Drive!");
-    document.getElementById("createFilePanel").appendChild(document.createElement("br"));
-    document.getElementById("createFilePanel").appendChild(savedFileMess);
+    saveFileToDriveSucceed();
     console.log(val);
   });
 };

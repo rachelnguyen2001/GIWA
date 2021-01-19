@@ -4,6 +4,7 @@
   <link href="styles.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
   <script src="https://apis.google.com/js/api:client.js"></script>
+  <script src="static/main.js"></script>
 </head>
 
 <body>
@@ -17,19 +18,15 @@
   <div id="name"></div>
   <div id="email"></div>
   <div id="btnPanel" style="display:none">
-    <button id="newFileBtn" type="button" onclick="createFiles()">Create a new file</button>
-    <button id="loadFileBtn" type="button" onclick="loadFiles()">Load files</button>
+    <button id="newFileBtn" type="button" onclick="createFile()">Create a new file</button>
+    <!-- <button id="loadFileBtn" type="button" onclick="App.loadFiles()">Load files</button> -->
   </div>
-  <!-- <div id="newFileForm" style="display:none">
+  <div id="newFileForm" style="display:none">
     <label for="fileName">File name:</label><br>
     <input type="text" id="fileName" name="fileName"><br>
     <label for="fileContent">File content:</label><br>
-    <textarea type="text" id="fileContent" name="fileContent" rows="20" cols="30"><br><br>
-    <button id="saveFileBtn" onclick="saveFiles()" value="Save file">
-  </div> -->
-  <!-- <div>
-    <button id="saveFileBtn" type="button" onclick="saveFiles()" style="display:none">Create a new file</button>
-  </div> -->
-  <script src="static/main.js"></script>
+    <textarea type="text" id="fileContent" name="fileContent" rows="20" cols="30"></textarea><br>
+    <button id="saveFileBtn" type="button" onclick="saveFileToDriveFromApp()">Save file</button>
+  </div>
 </body>
 </html>
