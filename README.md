@@ -2,6 +2,14 @@
 A Google Drive integrated web app
 
 ## Setup
+### Server setup
+1. Set up local server:
+```python3
+python3 -m http.server 8080
+```
+2. Quit local server: `Ctrl + z`
+3. To run the `8080` port again, first find the process's id through the `sudo lsof -i:8080` command. Then, kill the process using the `kill $PID` command.
+
 ### Google authorization for signin
 1. Go to [Credentials page](https://console.developers.google.com/apis/credentials)
 2. Click `Create Credentials` &rightarrow; `Create OAuth client ID`
@@ -14,7 +22,7 @@ A Google Drive integrated web app
 ```javascript
 window.addEventListener("load", function(event){
   App.start();
-})
+});
 
 var App = {};
 var googleUser = {};
@@ -53,4 +61,36 @@ function signInSucceed(googleUser) {
 
 function getUserInfo(googleUser) {
   return [googleUser.getBasicProfile().getName(), googleUser.getBasicProfile().getEmail()];
+};
+```
+
+### Adding testing users
+1. Go to [OAuth consent screen page](https://console.developers.google.com/apis/credentials/consent?project=giwa-021269)
+2. Click `Add users` in `Test users`
+3. Enter the user's Gmail address and click `Save`
+
+### Saving a file to Google Drive
+1. Save a file to Google Drive in `main.js`:
+```javascript
+function saveFileToDrive(fileName, fileContent) {
+  var file = new Blob([fileContent], {type: 'text/plain'});
+  var metadata = {
+    'name': fileName,
+    'mimeType': 'text/plain',
+  };
+  
+  var accessToken = gapi.auth.getToken().access_token;
+  var form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+  form.append('file', file);
+
+  fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+    method: 'POST',
+    headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+    body: form,
+  }).then((res) => {
+    return res.json();
+  }).then(function(val) {
+    console.log(val);
+  });
 };
