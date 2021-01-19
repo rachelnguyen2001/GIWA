@@ -26,7 +26,7 @@ window.addEventListener("load", function(event){
 
 var App = {};
 var googleUser = {};
-App.start = initializeApp();
+App.start = initializeApp;
 
 function initializeApp() {
   gapi.load('auth2', initializeGoogleSignIn());
@@ -35,11 +35,12 @@ function initializeApp() {
 function initializeGoogleSignIn() {
   auth2 = gapi.auth2.init({
     // Client ID retrieved from above
-    client_id = '191815373223-e6gimsdlrqq6strtcsqstgmr426tjavj.apps.googleusercontent.com', 
-    cookiepolicy = 'single_host_origin',
+    client_id: '191815373223-e6gimsdlrqq6strtcsqstgmr426tjavj.apps.googleusercontent.com',
+    cookiepolicy: 'single_host_origin',
     // Access files in the user's Google Drive
-    scope = 'https://www.googleapis.com/auth/drive.file'
+    scope: 'https://www.googleapis.com/auth/drive.file'
   });
+  detectSignin(document.getElementById('customBtn'));
 };
 ```
 9. Detect signin in `main.js`:
