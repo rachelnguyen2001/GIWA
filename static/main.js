@@ -92,12 +92,12 @@ function openFiles() {
   loadFilesFromDrive(fileName);
 }
 
-// function returnFileContent(fileContent) {
-//   // console.log(fileContent);
-//   return fileContent;
-// };
+function returnFileContent(fileContent) {
+  // console.log(fileContent);
+  return fileContent;
+};
 
-function loadFileContent(fileId) {
+function loadFileContent(fileId, fileDisplayId) {
   gapi.load('client', function() {
     gapi.client.load('drive', 'v3', function() {
       var file = gapi.client.drive.files.get({ 'fileId': fileId, 'alt': 'media', });
@@ -107,15 +107,17 @@ function loadFileContent(fileId) {
         // console.log(typeof(res));
         var fileContent = res.toString();
         // console.log(fileContent);
-        return fileContent;
+        // return fileContent;
         // console.log(fileContent);
         // return fileContent;
         // console.log(typeof(fileContent));
         // displayContentFile(fileContent);
-        // var currentFileContent = document.createTextNode(fileContent);
-        // var openFilesDisplay = document.getElementById('openFilesDisplay');
+        var currentFileContent = document.createTextNode(fileContent);
+        var currentFileDisplay = document.getElementById(fileDisplayId);
+        var openFilesDisplay = document.getElementById('openFilesDisplay');
         // console.log(currentFileContent.value);
-        // openFilesDisplay.appendChild(currentFileContent);
+        currentFileDisplay.appendChild(currentFileContent);
+        openFilesDisplay.appendChild(currentFileDisplay);
       });
     });
   });
@@ -140,13 +142,17 @@ function loadFilesFromDrive(fileName) {
       if (fileName == val.files[i].name) {
         numFiles++;
         var currentFileDisplay = document.createElement("p");
-        var currentFileContent = loadFileContent(val.files[i].id);
-        console.log(currentFileContent);
+        currentFileDisplay.id = numFiles;
+        console.log(currentFileDisplay.id);
+        // var currentFileContent = loadFileContent(val.files[i].id);
+        // console.log(currentFileContent);
         // console.log(loadFileContent(val.files[i].id));
-        var currentFileNum = "File " + numFiles + " : ";
-        var currentFileNumDisplay = document.createTextNode(currentFileNum);
-        currentFileDisplay.appendChild(currentFileNumDisplay);
+        // var currentFileNum = "File " + numFiles + " : ";
+        var currentFileName = fileName + ": ";
+        var currentFileNameDisplay = document.createTextNode(currentFileName);
+        currentFileDisplay.appendChild(currentFileNameDisplay);
         openFilesDisplay.appendChild(currentFileDisplay);
+        loadFileContent(val.files[i].id, currentFileDisplay.id);
       }
     }
   });
