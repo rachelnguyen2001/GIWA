@@ -47,8 +47,8 @@ function createFile() {
 };
 
 function saveFileToDriveFromApp() {
-  var fileName = document.getElementById('fileName').value;
-  var fileContent = document.getElementById('fileContent').value;
+  var fileName = document.getElementById('newFileName').value;
+  var fileContent = document.getElementById('newFileContent').value;
   saveFileToDrive(fileName, fileContent);
 }
 
@@ -81,3 +81,84 @@ function saveFileToDrive(fileName, fileContent) {
     console.log(val);
   });
 };
+
+function openFilesFormDisplay() {
+  document.getElementById('openFilesForm').style.display = 'block';
+};
+
+function openFiles() {
+  document.getElementById('openFilesDisplay').style.display = 'block';
+  var fileName = document.getElementById('openFileName').value;
+  loadFilesFromDrive(fileName);
+}
+
+// function returnFileContent(fileContent) {
+//   // console.log(fileContent);
+//   return fileContent;
+// };
+
+function loadFileContent(fileId) {
+  gapi.load('client', function() {
+    gapi.client.load('drive', 'v3', function() {
+      var file = gapi.client.drive.files.get({ 'fileId': fileId, 'alt': 'media', });
+      file.execute(function(res) {
+        // console.log(res);
+        // return res;
+        // console.log(typeof(res));
+        var fileContent = res.toString();
+        // console.log(fileContent);
+        return fileContent;
+        // console.log(fileContent);
+        // return fileContent;
+        // console.log(typeof(fileContent));
+        // displayContentFile(fileContent);
+        // var currentFileContent = document.createTextNode(fileContent);
+        // var openFilesDisplay = document.getElementById('openFilesDisplay');
+        // console.log(currentFileContent.value);
+        // openFilesDisplay.appendChild(currentFileContent);
+      });
+    });
+  });
+  // console.log(fileContent);
+  // return fileContent;
+};
+
+function loadFilesFromDrive(fileName) {
+  var accessToken = gapi.auth.getToken().access_token;
+
+  fetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'GET',
+    headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+  }).then((res) => {
+    return res.json();
+  }).then(function(val) {
+    console.log(val);
+    var openFilesDisplay = document.getElementById('openFilesDisplay');
+    var numFiles = 0;
+
+    for (i=0; i < val.files.length; i++) {
+      if (fileName == val.files[i].name) {
+        numFiles++;
+        var currentFileDisplay = document.createElement("p");
+        var currentFileContent = loadFileContent(val.files[i].id);
+        console.log(currentFileContent);
+        // console.log(loadFileContent(val.files[i].id));
+        var currentFileNum = "File " + numFiles + " : ";
+        var currentFileNumDisplay = document.createTextNode(currentFileNum);
+        currentFileDisplay.appendChild(currentFileNumDisplay);
+        openFilesDisplay.appendChild(currentFileDisplay);
+      }
+    }
+  });
+};
+
+
+// function displayContentFile(fileContent) {
+//   // console.log(fileContent);
+//   var openFilesDisplay = document.getElementById('openFilesDisplay');
+//   // console.log(openFilesDisplay);
+//   var currentFileContent = document.createTextNode(fileContent);
+//   // console.log(currentFileContent.nodeValue);
+//   openFilesDisplay.appendChild(currentFileContent);
+//   console.log(openFilesDisplay);
+// };

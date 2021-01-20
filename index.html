@@ -19,14 +19,22 @@
   <div id="email"></div>
   <div id="btnPanel" style="display:none">
     <button id="newFileBtn" type="button" onclick="createFile()">Create a new file</button>
-    <!-- <button id="loadFileBtn" type="button" onclick="App.loadFiles()">Load files</button> -->
+    <button id="openFileBtn" type="button" onclick="openFilesFormDisplay()">Open files</button>
   </div>
   <div id="newFileForm" style="display:none">
     <label for="fileName">File name:</label><br>
-    <input type="text" id="fileName" name="fileName"><br>
+    <input type="text" id="newFileName" name="newFileName"><br>
     <label for="fileContent">File content:</label><br>
-    <textarea type="text" id="fileContent" name="fileContent" rows="20" cols="30"></textarea><br>
+    <textarea type="text" id="fileContent" name="newFileContent" rows="20" cols="30"></textarea><br>
     <button id="saveFileBtn" type="button" onclick="saveFileToDriveFromApp()">Save file</button>
+  </div>
+  <div id="openFilesForm" style="display:none">
+    <label for="fileName">File name:</label><br>
+    <input type="text" id="openFileName" name="openFileName"><br>
+    <button id="openFileBtn" type="button" onclick="openFiles()">Open file</button>
+  </div>
+  <div id="openFilesDisplay" style="display:none">
+    <h2>Found files:</h2>
   </div>
 </body>
 </html>
