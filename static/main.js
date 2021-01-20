@@ -131,6 +131,7 @@ function loadFilesFromDrive(fileName) {
   fetch('https://www.googleapis.com/drive/v3/files', {
     method: 'GET',
     headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+    // trashed: false,
   }).then((res) => {
     return res.json();
   }).then(function(val) {
