@@ -7,8 +7,7 @@ A Google Drive integrated web app
 ```python3
 python3 -m http.server 8080
 ```
-2. Quit local server: `Ctrl + z`
-3. To run the `8080` port again, first find the process's id through the `sudo lsof -i:8080` command. Then, kill the process using the `kill $PID` command.
+2. Quit local server: `Ctrl + c`
 
 ### Google authorization for signin
 1. Go to [Credentials page](https://console.developers.google.com/apis/credentials)
