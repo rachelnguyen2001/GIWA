@@ -74,11 +74,11 @@ function saveFileToDrive(fileName, fileContent) {
     method: 'POST',
     headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
     body: form,
-  }).then((res) => {
-    return res.json();
-  }).then(function(val) {
+  }).then((response) => {
+    return response.json();
+  }).then(function(response) {
     saveFileToDriveSucceed();
-    console.log(val);
+    console.log(response);
   });
 };
 
@@ -101,11 +101,11 @@ function loadFileContent(fileId, fileDisplayId) {
   gapi.load('client', function() {
     gapi.client.load('drive', 'v3', function() {
       var file = gapi.client.drive.files.get({ 'fileId': fileId, 'alt': 'media', });
-      file.execute(function(res) {
+      file.execute(function(response) {
         // console.log(res);
         // return res;
         // console.log(typeof(res));
-        var fileContent = res.toString();
+        var fileContent = response.toString();
         // console.log(fileContent);
         // return fileContent;
         // console.log(fileContent);
@@ -132,28 +132,23 @@ function loadFilesFromDrive(fileName) {
     method: 'GET',
     headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
     // trashed: false,
-  }).then((res) => {
-    return res.json();
-  }).then(function(val) {
-    console.log(val);
+  }).then((response) => {
+    return response.json();
+  }).then(function(response) {
+    console.log(response);
     var openFilesDisplay = document.getElementById('openFilesDisplay');
-    var numFiles = 0;
+    openFilesDisplay.innerHTML = '';
 
-    for (i=0; i < val.files.length; i++) {
-      if (fileName == val.files[i].name) {
-        numFiles++;
-        var currentFileDisplay = document.createElement("p");
-        currentFileDisplay.id = numFiles;
-        console.log(currentFileDisplay.id);
-        // var currentFileContent = loadFileContent(val.files[i].id);
-        // console.log(currentFileContent);
-        // console.log(loadFileContent(val.files[i].id));
-        // var currentFileNum = "File " + numFiles + " : ";
+    for (var i=0; i < response.files.length; i++) {
+      if (fileName == response.files[i].name) {
+        var currentFileDisplayP = document.createElement("p");
+        currentFileDisplayP.id = "listfile-" + i;
+        console.log(currentFileDisplayP.id);
         var currentFileName = fileName + ": ";
         var currentFileNameDisplay = document.createTextNode(currentFileName);
-        currentFileDisplay.appendChild(currentFileNameDisplay);
-        openFilesDisplay.appendChild(currentFileDisplay);
-        loadFileContent(val.files[i].id, currentFileDisplay.id);
+        currentFileDisplayP.appendChild(currentFileNameDisplay);
+        openFilesDisplay.appendChild(currentFileDisplayP);
+        loadFileContent(response.files[i].id, currentFileDisplayP.id);
       }
     }
   });
