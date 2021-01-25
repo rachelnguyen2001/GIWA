@@ -92,37 +92,35 @@ function openFiles() {
   loadFilesFromDrive(fileName);
 }
 
-function returnFileContent(fileContent) {
-  // console.log(fileContent);
-  return fileContent;
+function openFileInApp(fileId) {
 };
 
-function loadFileContent(fileId, fileDisplayId) {
+function displayFileForOpen(fileId, fileOrder) {
+  var fileDisplayP = document.createElement("p");
+  var fileOrderText = "File " + fileOrder + " ";
+  var fileOrderDisplay = document.createTextNode(fileOrderText);
+  var fileOpenB = document.createElement("button");
+  fileOpenB.innerHTML = 'Open this file';
+  fileOpenB.addEventListener("click", function() {
+    openFileInApp(fileId);
+  });
+  fileDisplayP.appendChild(fileOrderDisplay);
+  fileDisplayP.appendChild(fileOpenB);
+  document.body.appendChild(fileDisplayP);
+};
+
+// https://developers.google.com/drive/api/v3/reference/files/get?apix_params=%7B%22fileId%22%3A%221RhuNrTiuhYbhCBIdW3-LEyyEvcLv5YAx%22%2C%22fields%22%3A%22files(id%2CmimeType%2Cname)%22%7D
+function loadFileFromDrive(fileId, fileOrder) {
   gapi.load('client', function() {
     gapi.client.load('drive', 'v3', function() {
-      var file = gapi.client.drive.files.get({ 'fileId': fileId, 'alt': 'media', });
+      var file = gapi.client.drive.files.get({ 'fileId': fileId, 'fields': 'trashed'});
       file.execute(function(response) {
-        // console.log(res);
-        // return res;
-        // console.log(typeof(res));
-        var fileContent = response.toString();
-        // console.log(fileContent);
-        // return fileContent;
-        // console.log(fileContent);
-        // return fileContent;
-        // console.log(typeof(fileContent));
-        // displayContentFile(fileContent);
-        var currentFileContent = document.createTextNode(fileContent);
-        var currentFileDisplay = document.getElementById(fileDisplayId);
-        var openFilesDisplay = document.getElementById('openFilesDisplay');
-        // console.log(currentFileContent.value);
-        currentFileDisplay.appendChild(currentFileContent);
-        openFilesDisplay.appendChild(currentFileDisplay);
+        if (response.trashed == false) {
+          displayFileForOpen(fileId, fileOrder);
+        }
       });
     });
   });
-  // console.log(fileContent);
-  // return fileContent;
 };
 
 function loadFilesFromDrive(fileName) {
@@ -131,36 +129,20 @@ function loadFilesFromDrive(fileName) {
   fetch('https://www.googleapis.com/drive/v3/files', {
     method: 'GET',
     headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-    // trashed: false,
   }).then((response) => {
     return response.json();
   }).then(function(response) {
     console.log(response);
+    document.getElementById("foundFiles").style.display = 'block';
     var openFilesDisplay = document.getElementById('openFilesDisplay');
     openFilesDisplay.innerHTML = '';
+    var numFiles = 0;
 
     for (var i=0; i < response.files.length; i++) {
       if (fileName == response.files[i].name) {
-        var currentFileDisplayP = document.createElement("p");
-        currentFileDisplayP.id = "listfile-" + i;
-        console.log(currentFileDisplayP.id);
-        var currentFileName = fileName + ": ";
-        var currentFileNameDisplay = document.createTextNode(currentFileName);
-        currentFileDisplayP.appendChild(currentFileNameDisplay);
-        openFilesDisplay.appendChild(currentFileDisplayP);
-        loadFileContent(response.files[i].id, currentFileDisplayP.id);
+        numFiles++;
+        loadFileFromDrive(response.files[i].id, numFiles);
       }
     }
   });
 };
-
-
-// function displayContentFile(fileContent) {
-//   // console.log(fileContent);
-//   var openFilesDisplay = document.getElementById('openFilesDisplay');
-//   // console.log(openFilesDisplay);
-//   var currentFileContent = document.createTextNode(fileContent);
-//   // console.log(currentFileContent.nodeValue);
-//   openFilesDisplay.appendChild(currentFileContent);
-//   console.log(openFilesDisplay);
-// };
