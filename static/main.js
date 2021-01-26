@@ -99,6 +99,7 @@ function displayFileContent(content, name) {
   document.getElementById('newFileName').value = name;
 }
 
+// https://developers.google.com/drive/api/v2/reference/files/get#javascript
 function getFileContent(fileUrl, fileName) {
   fetch(fileUrl, {
     method: 'GET',
@@ -112,9 +113,9 @@ function getFileContent(fileUrl, fileName) {
   }).then(function(response) {
     displayFileContent(response, fileName);
   });
-
 };
 
+// https://alfilatov.com/posts/run-chrome-without-cors/
 // https://stackoverflow.com/questions/26823456/no-access-control-allow-origin-header-for-exportlink
 // function getFileContent(fileUrl) {
 //   var accessToken = gapi.auth.getToken().access_token;
@@ -166,6 +167,7 @@ function getFileContent(fileUrl, fileName) {
 //   };
 // };
 
+// https://developers.google.com/drive/api/v3/reference/files/get?apix_params=%7B%22fileId%22%3A%221RhuNrTiuhYbhCBIdW3-LEyyEvcLv5YAx%22%2C%22fields%22%3A%22files(id%2CmimeType%2Cname)%22%7D
 function openFileInApp(fileId, fileName) {
   gapi.load('client', function() {
     gapi.client.load('drive', 'v3', function() {
