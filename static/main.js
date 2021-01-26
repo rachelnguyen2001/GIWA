@@ -92,17 +92,99 @@ function openFiles() {
   loadFilesFromDrive(fileName);
 }
 
-function openFileInApp(fileId) {
+function displayFileContent(content, name) {
+  var fileContent = document.getElementById('newFileForm');
+  fileContent.style.display = 'block';
+  document.getElementById('newFileContent').value = content;
+  document.getElementById('newFileName').value = name;
+}
+
+function getFileContent(fileUrl, fileName) {
+  fetch(fileUrl, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+    },
+    credentials: 'same-origin',
+    encoding: null,
+  }).then((response) => {
+    return response.text();
+  }).then(function(response) {
+    displayFileContent(response, fileName);
+  });
+
 };
 
-function displayFileForOpen(fileId, fileOrder) {
+// https://stackoverflow.com/questions/26823456/no-access-control-allow-origin-header-for-exportlink
+// function getFileContent(fileUrl) {
+//   var accessToken = gapi.auth.getToken().access_token;
+//   // console.log(fileUrl);
+//
+//   fetch(fileUrl, {
+//     method: 'GET',
+//     headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+//     encoding: null,
+//     // mode: 'no-cors',
+//     // credentials: 'include',
+//   }).then((response) => {
+//     return response.json();
+//   }).then(function(response) {
+//     console.log(response);
+//   });
+
+  // console.log(fileUrl);
+  // var accessToken = gapi.auth.getToken().access_token;
+  // var xhr = new XMLHttpRequest();
+  // xhr.open('GET', fileUrl);
+  // xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+  // // xhr.setRequestHeader('Access-Control-Allow-Origin', "*");
+  // // xhr.setRequestHeader('Allow', "*");
+  // // xhr.setRequestHeader('Access-Control-Allow-Methods', "POST, GET, PUT, DELETE, OPTIONS");
+  // // xhr.setRequestHeader('Content-Type', 'application/json');
+  // // xhr.withCredentials = true;
+  // // xhr.send();
+  // xhr.onload = function() {
+  //   console.log(xhr.responseText);
+  // };
+  // xhr.send();
+// };
+
+// function getFileContent(fileUrl) {
+//   console.log(fileUrl);
+//   // var accessToken = gapi.auth.getToken().access_token;
+//   var xhr = new XMLHttpRequest();
+//   xhr.open('GET', fileUrl);
+//   // xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+//   xhr.setRequestHeader('Access-Control-Allow-Origin', "*");
+//   xhr.setRequestHeader('Allow', "*");
+//   xhr.setRequestHeader('Access-Control-Allow-Methods', "POST, GET, PUT, DELETE, OPTIONS");
+//   xhr.setRequestHeader('Content-Type', 'application/json');
+//   xhr.withCredentials = true;
+//   xhr.send();
+//   xhr.onload = function() {
+//     console.log('Done');
+//   };
+// };
+
+function openFileInApp(fileId, fileName) {
+  gapi.load('client', function() {
+    gapi.client.load('drive', 'v3', function() {
+      var file = gapi.client.drive.files.get({ 'fileId': fileId, 'fields': 'webContentLink' });
+      file.execute(function(response) {
+        getFileContent(response.webContentLink, fileName);
+      });
+    });
+  });
+};
+
+function displayFileForOpen(fileId, fileOrder, fileName) {
   var fileDisplayP = document.createElement("p");
   var fileOrderText = "File " + fileOrder + " ";
   var fileOrderDisplay = document.createTextNode(fileOrderText);
   var fileOpenB = document.createElement("button");
   fileOpenB.innerHTML = 'Open this file';
   fileOpenB.addEventListener("click", function() {
-    openFileInApp(fileId);
+    openFileInApp(fileId, fileName);
   });
   fileDisplayP.appendChild(fileOrderDisplay);
   fileDisplayP.appendChild(fileOpenB);
@@ -110,13 +192,13 @@ function displayFileForOpen(fileId, fileOrder) {
 };
 
 // https://developers.google.com/drive/api/v3/reference/files/get?apix_params=%7B%22fileId%22%3A%221RhuNrTiuhYbhCBIdW3-LEyyEvcLv5YAx%22%2C%22fields%22%3A%22files(id%2CmimeType%2Cname)%22%7D
-function loadFileFromDrive(fileId, fileOrder) {
+function loadFileFromDrive(fileId, fileOrder, fileName) {
   gapi.load('client', function() {
     gapi.client.load('drive', 'v3', function() {
       var file = gapi.client.drive.files.get({ 'fileId': fileId, 'fields': 'trashed'});
       file.execute(function(response) {
         if (response.trashed == false) {
-          displayFileForOpen(fileId, fileOrder);
+          displayFileForOpen(fileId, fileOrder, fileName);
         }
       });
     });
@@ -141,7 +223,7 @@ function loadFilesFromDrive(fileName) {
     for (var i=0; i < response.files.length; i++) {
       if (fileName == response.files[i].name) {
         numFiles++;
-        loadFileFromDrive(response.files[i].id, numFiles);
+        loadFileFromDrive(response.files[i].id, numFiles, fileName);
       }
     }
   });
