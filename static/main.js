@@ -147,18 +147,20 @@ function displayFileForOpen(fileId, fileOrder, fileName) {
   document.body.appendChild(fileDisplayP);
 };
 
-// https://developers.google.com/drive/api/v3/reference/files/get?apix_params=%7B%22fileId%22%3A%221RhuNrTiuhYbhCBIdW3-LEyyEvcLv5YAx%22%2C%22fields%22%3A%22files(id%2CmimeType%2Cname)%22%7D
 function loadFileFromDrive(fileId, fileOrder, fileName) {
-  gapi.load('client', function() {
-    gapi.client.load('drive', 'v3', function() {
-      var file = gapi.client.drive.files.get({ 'fileId': fileId, 'fields': 'trashed'});
-      file.execute(function(response) {
-        if (response.trashed == false) {
-          displayFileForOpen(fileId, fileOrder, fileName);
-        }
-      });
-    });
+  var accessToken = gapi.auth.getToken().access_token;
+
+  fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'?fields=trashed', {
+    method: 'GET',
+    headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+  }).then((response) => {
+    return response.json();
+  }).then(function(response) {
+    if (response.trashed == false) {
+      displayFileForOpen(fileId, fileOrder, fileName);
+    }
   });
+
 };
 
 function loadFilesFromDrive(fileName) {
