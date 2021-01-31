@@ -92,11 +92,15 @@ function openFiles() {
   loadFilesFromDrive(fileName);
 }
 
-function displayFileContent(fileContent, fileName) {
+function displayFileContent(fileId, fileContent, fileName) {
   var content = document.getElementById('openedFileForm');
   content.style.display = 'block';
   document.getElementById('openedFileContent').value = fileContent;
   document.getElementById('openedFileName').value = fileName;
+  var updateBtn = document.getElementById('updateFileBtn');
+  updateBtn.addEventListener("click", function() {
+    updateFileToDriveFromApp(fileId);
+  });
 }
 
 function getFileContent(fileId, fileName) {
@@ -108,7 +112,7 @@ function getFileContent(fileId, fileName) {
   }).then((response) => {
 	  return response.text();
   }).then(function(fileContent) {
-    displayFileContent(fileContent, fileName);
+    displayFileContent(fileId, fileContent, fileName);
   });
 };
 
@@ -164,13 +168,44 @@ function loadFilesFromDrive(fileName) {
   });
 };
 
-function updateFileToDriveFromApp() {
-
+function updateFileToDriveFromApp(fileId) {
+  var fileName = document.getElementById('openedFileName').value;
+  var fileContent = document.getElementById('openedFileContent').value;
+  updateFileToDrive(fileId, fileName, fileContent);
 };
 
-function updateFileToDrive() {
+function updateFileToDrive(fileId, fileName, fileContent) {
+  // console.log(fileId);
+  // console.log(fileName);
+  // console.log(fileContent);
+  var file = new Blob([fileContent], {type: 'text/plain'});
+  var metadata = {
+     'name': fileName,
+     'mimeType': 'text/plain',
+   };
 
+  var accessToken = gapi.auth.getToken().access_token;
+  var form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+  form.append('file', file);
+
+  fetch('https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=multipart', {
+    method: 'PATCH',
+    headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+    body: form,
+  }).then((response) => {
+    return response.json();
+  }).then(function(response) {
+    console.log(response);
+    updateFileToDriveSucceed();
+  });
 };
+
+function updateFileToDriveSucceed() {
+  var updatedFileMess = document.createTextNode("File is updated in your Google Drive!");
+  document.getElementById("openedFileForm").appendChild(document.createElement("br"));
+  document.getElementById("openedFileForm").appendChild(updatedFileMess);
+}
 
 // function updateFileToDriveFromApp(fileId) {
 //   var fileName = document.getElementById('fileName').value;
