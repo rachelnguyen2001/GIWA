@@ -47,8 +47,8 @@ function createFile() {
 };
 
 function saveFileToDriveFromApp() {
-  var fileName = document.getElementById('fileName').value;
-  var fileContent = document.getElementById('fileContent').value;
+  var fileName = document.getElementById('newFileName').value;
+  var fileContent = document.getElementById('newFileContent').value;
   saveFileToDrive(fileName, fileContent);
 }
 
@@ -93,10 +93,10 @@ function openFiles() {
 }
 
 function displayFileContent(fileContent, fileName) {
-  var content = document.getElementById('newFileForm');
+  var content = document.getElementById('openedFileForm');
   content.style.display = 'block';
-  document.getElementById('fileContent').value = fileContent;
-  document.getElementById('fileName').value = fileName;
+  document.getElementById('openedFileContent').value = fileContent;
+  document.getElementById('openedFileName').value = fileName;
 }
 
 function getFileContent(fileId, fileName) {
@@ -155,13 +155,30 @@ function loadFilesFromDrive(fileName) {
     document.getElementById("foundFiles").style.display = 'block';
     var openFilesDisplay = document.getElementById('openFilesDisplay');
     openFilesDisplay.innerHTML = '';
-    // var numFiles = 0;
 
     for (var i=0; i < response.files.length; i++) {
       if (fileName == response.files[i].name) {
-        // numFiles++;
         loadFileFromDrive(response.files[i].id, fileName);
       }
     }
   });
 };
+
+function updateFileToDriveFromApp() {
+
+};
+
+function updateFileToDrive() {
+
+};
+
+// function updateFileToDriveFromApp(fileId) {
+//   var fileName = document.getElementById('fileName').value;
+//   var fileContent = document.getElementById('fileContent').value;
+//   updateFileToDrive(fileId, fileName, fileContent);
+// };
+
+// function updateFileToDrive(fileName, fileContent) {
+//   var accessToken = gapi.auth.getToken().access_token;
+//
+// };

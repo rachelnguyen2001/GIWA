@@ -22,10 +22,10 @@
     <button id="openFileBtn" type="button" onclick="openFilesFormDisplay()">Open files</button>
   </div>
   <div id="newFileForm" style="display:none">
-    <label for="fileName">File name:</label><br>
-    <input type="text" id="fileName" name="fileNameTextField"><br>
-    <label for="fileContent">File content:</label><br>
-    <textarea type="text" id="fileContent" name="fileContentTextArea" rows="20" cols="30"></textarea><br>
+    <label for="newFileName">File name:</label><br>
+    <input type="text" id="newFileName" name="newFileNameTextField"><br>
+    <label for="newFileContent">File content:</label><br>
+    <textarea type="text" id="newFileContent" name="newFileContentTextArea" rows="20" cols="30"></textarea><br>
     <button id="saveFileBtn" type="button" onclick="saveFileToDriveFromApp()">Save file</button>
   </div>
   <div id="openFilesForm" style="display:none">
@@ -35,6 +35,13 @@
   </div>
   <h2 id="foundFiles" style="display:none">Found file(s):</h2>
   <div id="openFilesDisplay" style="display:none">
+  </div>
+  <div id="openedFileForm" style="display:none">
+    <label for="openedFileName">File name:</label><br>
+    <input type="text" id="openedFileName" name="openedFileNameTextField"><br>
+    <label for="openedFileContent">File content:</label><br>
+    <textarea type="text" id="openedFileContent" name="openedFileContentTextArea" rows="20" cols="30"></textarea><br>
+    <button id="updateFileBtn" type="button" onclick="updateFileToDriveFromApp()">Update file</button>
   </div>
 </body>
 </html>
