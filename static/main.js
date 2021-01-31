@@ -47,8 +47,8 @@ function createFile() {
 };
 
 function saveFileToDriveFromApp() {
-  var fileName = document.getElementById('newFileName').value;
-  var fileContent = document.getElementById('newFileContent').value;
+  var fileName = document.getElementById('fileName').value;
+  var fileContent = document.getElementById('fileContent').value;
   saveFileToDrive(fileName, fileContent);
 }
 
@@ -95,8 +95,8 @@ function openFiles() {
 function displayFileContent(fileContent, fileName) {
   var content = document.getElementById('newFileForm');
   content.style.display = 'block';
-  document.getElementById('newFileContent').value = fileContent;
-  document.getElementById('newFileName').value = fileName;
+  document.getElementById('fileContent').value = fileContent;
+  document.getElementById('fileName').value = fileName;
 }
 
 function getFileContent(fileId, fileName) {
@@ -112,42 +112,21 @@ function getFileContent(fileId, fileName) {
   });
 };
 
-// function openFileInApp(fileId, fileName) {
-//   var accessToken = gapi.auth.getToken().access_token;
-//
-//   fetch('https://www.googleapis.com/drive/v3/files/'+fileID, {
-//     method: 'GET',
-//     headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-//   }).then((response) => {
-//
-//   }
-  // gapi.load('client', function() {
-  //   gapi.client.load('drive', 'v3', function() {
-  //     var file = gapi.client.drive.files.get({ 'fileId': fileId, 'alt': 'media' });
-  //     file.execute(function(response) {
-	// 	console.log(fileId, response);
-  //       //getFileContent(response.webContentLink, fileName);
-	// 	getFileContent(fileId);
-  //     });
-  //   });
-  // });
-// };
-
-function displayFileForOpen(fileId, fileOrder, fileName) {
+function displayFileForOpen(fileId, fileName) {
   var fileDisplayP = document.createElement("p");
-  var fileOrderText = "File " + fileOrder + " ";
-  var fileOrderDisplay = document.createTextNode(fileOrderText);
+  var fileNameText = fileName + " ";
+  var fileNameDisplay = document.createTextNode(fileNameText);
   var fileOpenB = document.createElement("button");
   fileOpenB.innerHTML = 'Open this file';
   fileOpenB.addEventListener("click", function() {
     getFileContent(fileId, fileName);
   });
-  fileDisplayP.appendChild(fileOrderDisplay);
+  fileDisplayP.appendChild(fileNameDisplay);
   fileDisplayP.appendChild(fileOpenB);
   document.body.appendChild(fileDisplayP);
 };
 
-function loadFileFromDrive(fileId, fileOrder, fileName) {
+function loadFileFromDrive(fileId, fileName) {
   var accessToken = gapi.auth.getToken().access_token;
 
   fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'?fields=trashed', {
@@ -157,7 +136,7 @@ function loadFileFromDrive(fileId, fileOrder, fileName) {
     return response.json();
   }).then(function(response) {
     if (response.trashed == false) {
-      displayFileForOpen(fileId, fileOrder, fileName);
+      displayFileForOpen(fileId, fileName);
     }
   });
 
@@ -176,12 +155,12 @@ function loadFilesFromDrive(fileName) {
     document.getElementById("foundFiles").style.display = 'block';
     var openFilesDisplay = document.getElementById('openFilesDisplay');
     openFilesDisplay.innerHTML = '';
-    var numFiles = 0;
+    // var numFiles = 0;
 
     for (var i=0; i < response.files.length; i++) {
       if (fileName == response.files[i].name) {
-        numFiles++;
-        loadFileFromDrive(response.files[i].id, numFiles, fileName);
+        // numFiles++;
+        loadFileFromDrive(response.files[i].id, fileName);
       }
     }
   });
