@@ -92,108 +92,46 @@ function openFiles() {
   loadFilesFromDrive(fileName);
 }
 
-function displayFileContent(content, name) {
-  var fileContent = document.getElementById('newFileForm');
-  fileContent.style.display = 'block';
-  document.getElementById('newFileContent').value = content;
-  document.getElementById('newFileName').value = name;
+function displayFileContent(fileContent, fileName) {
+  var content = document.getElementById('newFileForm');
+  content.style.display = 'block';
+  document.getElementById('newFileContent').value = fileContent;
+  document.getElementById('newFileName').value = fileName;
 }
 
-// https://developers.google.com/drive/api/v2/reference/files/get#javascript
-//function getFileContent(fileUrl, fileName) {
-//  fetch(fileUrl, {
-//    method: 'GET',
-//    headers: {
-//      'Accept': 'application/json',
-//    },
-//    credentials: 'same-origin',
-//    encoding: null,
-//  }).then((response) => {
-//    return response.text();
-//  }).then(function(response) {
-//    displayFileContent(response, fileName);
-//  });
-//};
-
-// https://alfilatov.com/posts/run-chrome-without-cors/
-// https://stackoverflow.com/questions/26823456/no-access-control-allow-origin-header-for-exportlink
-// function getFileContent(fileUrl) {
-//   var accessToken = gapi.auth.getToken().access_token;
-//   // console.log(fileUrl);
-//
-//   fetch(fileUrl, {
-//     method: 'GET',
-//     headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-//     encoding: null,
-//     // mode: 'no-cors',
-//     // credentials: 'include',
-//   }).then((response) => {
-//     return response.json();
-//   }).then(function(response) {
-//     console.log(response);
-//   });
-
-  // console.log(fileUrl);
-  // var accessToken = gapi.auth.getToken().access_token;
-  // var xhr = new XMLHttpRequest();
-  // xhr.open('GET', fileUrl);
-  // xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-  // // xhr.setRequestHeader('Access-Control-Allow-Origin', "*");
-  // // xhr.setRequestHeader('Allow', "*");
-  // // xhr.setRequestHeader('Access-Control-Allow-Methods', "POST, GET, PUT, DELETE, OPTIONS");
-  // // xhr.setRequestHeader('Content-Type', 'application/json');
-  // // xhr.withCredentials = true;
-  // // xhr.send();
-  // xhr.onload = function() {
-  //   console.log(xhr.responseText);
-  // };
-  // xhr.send();
-// };
-
-// function getFileContent(fileUrl) {
-//   console.log(fileUrl);
-//   // var accessToken = gapi.auth.getToken().access_token;
-//   var xhr = new XMLHttpRequest();
-//   xhr.open('GET', fileUrl);
-//   // xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-//   xhr.setRequestHeader('Access-Control-Allow-Origin', "*");
-//   xhr.setRequestHeader('Allow', "*");
-//   xhr.setRequestHeader('Access-Control-Allow-Methods', "POST, GET, PUT, DELETE, OPTIONS");
-//   xhr.setRequestHeader('Content-Type', 'application/json');
-//   xhr.withCredentials = true;
-//   xhr.send();
-//   xhr.onload = function() {
-//     console.log('Done');
-//   };
-// };
-
-function getFileContent(fileId) {
+function getFileContent(fileId, fileName) {
   var accessToken = gapi.auth.getToken().access_token;
 
   fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'?alt=media', {
     method: 'GET',
     headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
   }).then((response) => {
-	var fileContent = response.text();
-	
-    // TODO
-	
+	  return response.text();
+  }).then(function(fileContent) {
+    displayFileContent(fileContent, fileName);
   });
 };
 
-// https://developers.google.com/drive/api/v3/reference/files/get?apix_params=%7B%22fileId%22%3A%221RhuNrTiuhYbhCBIdW3-LEyyEvcLv5YAx%22%2C%22fields%22%3A%22files(id%2CmimeType%2Cname)%22%7D
-function openFileInApp(fileId, fileName) {
-  gapi.load('client', function() {
-    gapi.client.load('drive', 'v3', function() {
-      var file = gapi.client.drive.files.get({ 'fileId': fileId, 'alt': 'media' });
-      file.execute(function(response) {
-		console.log(fileId, response);
-        //getFileContent(response.webContentLink, fileName);
-		getFileContent(fileId);
-      });
-    });
-  });
-};
+// function openFileInApp(fileId, fileName) {
+//   var accessToken = gapi.auth.getToken().access_token;
+//
+//   fetch('https://www.googleapis.com/drive/v3/files/'+fileID, {
+//     method: 'GET',
+//     headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+//   }).then((response) => {
+//
+//   }
+  // gapi.load('client', function() {
+  //   gapi.client.load('drive', 'v3', function() {
+  //     var file = gapi.client.drive.files.get({ 'fileId': fileId, 'alt': 'media' });
+  //     file.execute(function(response) {
+	// 	console.log(fileId, response);
+  //       //getFileContent(response.webContentLink, fileName);
+	// 	getFileContent(fileId);
+  //     });
+  //   });
+  // });
+// };
 
 function displayFileForOpen(fileId, fileOrder, fileName) {
   var fileDisplayP = document.createElement("p");
@@ -202,7 +140,7 @@ function displayFileForOpen(fileId, fileOrder, fileName) {
   var fileOpenB = document.createElement("button");
   fileOpenB.innerHTML = 'Open this file';
   fileOpenB.addEventListener("click", function() {
-    openFileInApp(fileId, fileName);
+    getFileContent(fileId, fileName);
   });
   fileDisplayP.appendChild(fileOrderDisplay);
   fileDisplayP.appendChild(fileOpenB);
