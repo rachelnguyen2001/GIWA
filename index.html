@@ -28,6 +28,7 @@
     <textarea type="text" id="newFileContent" name="newFileContentTextArea" rows="20" cols="30"></textarea><br>
     <button id="saveFileBtn" type="button" onclick="saveFileToDriveFromApp()">Save file</button>
   </div>
+  <p id="saveFileSucceed" style="display:none">File is saved to your Google Drive!</p>
   <div id="openFilesForm" style="display:none">
     <label for="openFileName">File name:</label><br>
     <input type="text" id="openFileName" name="openFileName"><br>
@@ -40,6 +41,7 @@
     <textarea type="text" id="openedFileContent" name="openedFileContentTextArea" rows="20" cols="30"></textarea><br>
     <button id="updateFileBtn" type="button">Update file</button>
   </div>
+  <p id="updateFileSucceed" style="display:none">File is updated in your Google Drive!</p>
   <h2 id="foundFiles" style="display:none">Found file(s):</h2>
   <div id="openFilesDisplay" style="display:none">
   </div>

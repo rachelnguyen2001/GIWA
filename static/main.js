@@ -44,18 +44,19 @@ function getUserInfo(googleUser) {
 
 function createFile() {
   document.getElementById('newFileForm').style.display = 'block';
+  document.getElementById('newFileName').value = '';
+  document.getElementById('newFileContent').value = '';
+  document.getElementById('updateFileSucceed').style.display = 'none';
+  document.getElementById('openFilesForm').style.display = 'none';
+  document.getElementById('openedFileForm').style.display = 'none';
+  document.getElementById('foundFiles').style.display = 'none';
+  document.getElementById('openFilesDisplay').style.display = 'none';
 };
 
 function saveFileToDriveFromApp() {
   var fileName = document.getElementById('newFileName').value;
   var fileContent = document.getElementById('newFileContent').value;
   saveFileToDrive(fileName, fileContent);
-}
-
-function saveFileToDriveSucceed() {
-  var savedFileMess = document.createTextNode("File is saved to your Google Drive!");
-  document.getElementById("newFileForm").appendChild(document.createElement("br"));
-  document.getElementById("newFileForm").appendChild(savedFileMess);
 }
 
 function saveFileToDrive(fileName, fileContent) {
@@ -83,18 +84,29 @@ function saveFileToDrive(fileName, fileContent) {
 };
 
 function openFilesFormDisplay() {
+  document.getElementById('saveFileSucceed').style.display = 'none';
+  document.getElementById('newFileForm').style.display = 'none';
   document.getElementById('openFilesForm').style.display = 'block';
+  document.getElementById('openFileName').value = '';
+  document.getElementById('openFilesDisplay').style.display = 'none';
+  document.getElementById('foundFiles').style.display = 'none';
 };
 
 function openFiles() {
-  document.getElementById('openFilesDisplay').style.display = 'block';
+  var openFilesDisplay = document.getElementById('openFilesDisplay');
+  openFilesDisplay.style.display = 'block';
+  openFilesDisplay.innerHTML = "";
+  document.getElementById('foundFiles').style.display = 'block';
   var fileName = document.getElementById('openFileName').value;
+  document.getElementById('openedFileName').value = '';
+  document.getElementById('openedFileContent').value = '';
   loadFilesFromDrive(fileName);
 }
 
 function displayFileContent(fileId, fileContent, fileName) {
   var content = document.getElementById('openedFileForm');
   content.style.display = 'block';
+  document.getElementById('updateFileSucceed').style.display = 'none';
   document.getElementById('openedFileContent').value = fileContent;
   document.getElementById('openedFileName').value = fileName;
   var updateBtn = document.getElementById('updateFileBtn');
@@ -127,7 +139,7 @@ function displayFileForOpen(fileId, fileName) {
   });
   fileDisplayP.appendChild(fileNameDisplay);
   fileDisplayP.appendChild(fileOpenB);
-  document.body.appendChild(fileDisplayP);
+  document.getElementById('openFilesDisplay').appendChild(fileDisplayP);
 };
 
 function loadFileFromDrive(fileId, fileName) {
@@ -156,9 +168,6 @@ function loadFilesFromDrive(fileName) {
     return response.json();
   }).then(function(response) {
     console.log(response);
-    document.getElementById("foundFiles").style.display = 'block';
-    var openFilesDisplay = document.getElementById('openFilesDisplay');
-    openFilesDisplay.innerHTML = '';
 
     for (var i=0; i < response.files.length; i++) {
       if (fileName == response.files[i].name) {
@@ -175,9 +184,6 @@ function updateFileToDriveFromApp(fileId) {
 };
 
 function updateFileToDrive(fileId, fileName, fileContent) {
-  // console.log(fileId);
-  // console.log(fileName);
-  // console.log(fileContent);
   var file = new Blob([fileContent], {type: 'text/plain'});
   var metadata = {
      'name': fileName,
@@ -202,18 +208,9 @@ function updateFileToDrive(fileId, fileName, fileContent) {
 };
 
 function updateFileToDriveSucceed() {
-  var updatedFileMess = document.createTextNode("File is updated in your Google Drive!");
-  document.getElementById("openedFileForm").appendChild(document.createElement("br"));
-  document.getElementById("openedFileForm").appendChild(updatedFileMess);
+  document.getElementById('updateFileSucceed').style.display = 'block';
 }
 
-// function updateFileToDriveFromApp(fileId) {
-//   var fileName = document.getElementById('fileName').value;
-//   var fileContent = document.getElementById('fileContent').value;
-//   updateFileToDrive(fileId, fileName, fileContent);
-// };
-
-// function updateFileToDrive(fileName, fileContent) {
-//   var accessToken = gapi.auth.getToken().access_token;
-//
-// };
+function saveFileToDriveSucceed() {
+  document.getElementById('saveFileSucceed').style.display = 'block';
+}
