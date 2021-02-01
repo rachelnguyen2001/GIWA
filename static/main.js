@@ -90,6 +90,8 @@ function openFilesFormDisplay() {
   document.getElementById('openFileName').value = '';
   document.getElementById('openFilesDisplay').style.display = 'none';
   document.getElementById('foundFiles').style.display = 'none';
+  document.getElementById('openedFileForm').style.display = 'none';
+  document.getElementById('updateFileSucceed').style.display = 'none';
 };
 
 function openFiles() {
@@ -209,8 +211,38 @@ function updateFileToDrive(fileId, fileName, fileContent) {
 
 function updateFileToDriveSucceed() {
   document.getElementById('updateFileSucceed').style.display = 'block';
-}
+};
 
 function saveFileToDriveSucceed() {
   document.getElementById('saveFileSucceed').style.display = 'block';
+};
+
+function openAllFiles() {
+  document.getElementById('newFileForm').style.display = 'none';
+  document.getElementById('openFilesForm').style.display = 'none';
+  document.getElementById('saveFileSucceed').style.display = 'none';
+  document.getElementById('openedFileForm').style.display = 'none';
+  document.getElementById('updateFileSucceed').style.display = 'none';
+  document.getElementById('foundFiles').style.display = 'block';
+  var openFilesDisplay = document.getElementById('openFilesDisplay');
+  openFilesDisplay.style.display = 'block';
+  openFilesDisplay.innerHTML = "";
+  openAllFilesFromDrive();
 }
+
+function openAllFilesFromDrive() {
+  var accessToken = gapi.auth.getToken().access_token;
+
+  fetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'GET',
+    headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+  }).then((response) => {
+    return response.json();
+  }).then(function(response) {
+    console.log(response);
+
+    for (var i=0; i < response.files.length; i++) {
+      loadFileFromDrive(response.files[i].id, response.files[i].name);
+    }
+  });
+};
