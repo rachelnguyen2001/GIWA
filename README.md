@@ -109,67 +109,61 @@ function loadFilesFromDrive(fileName) {
     return response.json();
   }).then(function(response) {
     console.log(response);
-    document.getElementById("foundFiles").style.display = 'block';
-    var openFilesDisplay = document.getElementById('openFilesDisplay');
-    openFilesDisplay.innerHTML = '';
-    // Number of files with the given name
-    var numFiles = 0;
 
     for (var i=0; i < response.files.length; i++) {
       if (fileName == response.files[i].name) {
-        numFiles++;
-        loadFileFromDrive(response.files[i].id, numFiles, fileName);
+        loadFileFromDrive(response.files[i].id, fileName);
       }
     }
   });
-};
 ```
 2. Load individual file from Google Drive with the `trashed` field to see whether the file has been trashed:
 ```javascript
-function loadFileFromDrive(fileId, fileOrder, fileName) {
-  gapi.load('client', function() {
-    gapi.client.load('drive', 'v3', function() {
-      var file = gapi.client.drive.files.get({ 'fileId': fileId, 'fields': 'trashed'});
-      file.execute(function(response) {
-        if (response.trashed == false) {
-          displayFileForOpen(fileId, fileOrder, fileName);
-        }
-      });
-    });
-  });
-};
-```
-3. Retrieve the `webContentLink` of each file:
-```javascript
-function openFileInApp(fileId, fileName) {
-  gapi.load('client', function() {
-    gapi.client.load('drive', 'v3', function() {
-      var file = gapi.client.drive.files.get({ 'fileId': fileId, 'fields': 'webContentLink' });
-      file.execute(function(response) {
-        getFileContent(response.webContentLink, fileName);
-      });
-    });
-  });
-};
-```
-4. Turn off web security in `Chrome` to pass the `Cross-Origin Resource Sharing (CORS)` requirement on `MacOS`:
-```
-open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security
-```
-5. Get the file content from the `webContentLink`:
-```javascript
-function getFileContent(fileUrl, fileName) {
-  fetch(fileUrl, {
+function loadFileFromDrive(fileId, fileName) {
+  var accessToken = gapi.auth.getToken().access_token;
+
+  fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'?fields=trashed', {
     method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-    },
-    credentials: 'same-origin',
-    encoding: null,
+    headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
   }).then((response) => {
-    return response.text();
+    return response.json();
   }).then(function(response) {
-    displayFileContent(response, fileName);
+    if (response.trashed == false) {
+      displayFileForOpen(fileId, fileName);
+    }
+  });
+
+};
+```
+3. Get the file content:
+```javascript
+function getFileContent(fileId, fileName) {
+  var accessToken = gapi.auth.getToken().access_token;
+
+  fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'?alt=media', {
+    method: 'GET',
+    headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+  }).then((response) => {
+	  return response.text();
+  }).then(function(fileContent) {
+    displayFileContent(fileId, fileContent, fileName);
+  });
+};
+```
+### Sharing a file in Google Drive
+1. Currently, `role` can be `reader` or `writer` depending on the type of a permission. For sharing, define `type` as `anyone`:
+```javascript
+function shareFile(fileId, role, type) {
+  var accessToken = gapi.auth.getToken().access_token;
+
+  fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'/permissions', {
+    method: 'POST',
+    headers: new Headers({ 'Authorization': 'Bearer ' + accessToken, "Content-Type": "application/json" }),
+    body: JSON.stringify({"role": role, "type": type}),
+  }).then((response) => {
+    return response.json();
+  }).then(function(response) {
+    console.log(response);
   });
 };
 ```
