@@ -162,10 +162,17 @@ function displayFileForOpen(fileId, fileName) {
   shareFileWithAnyoneWriteB.addEventListener("click", function() {
     shareFile(fileId, 'writer', 'anyone');
   });
+  var shareFileWithEmailB = document.createElement("button");
+  shareFileWithEmailB.innerHTML = 'Specific person';
+  shareFileWithEmailB.addEventListener("click", function() {
+    var emailToShare = prompt("Email address to share with:");
+	// use emailToShare
+  });
   fileDisplayP.appendChild(fileNameDisplay);
   fileDisplayP.appendChild(fileOpenB);
   fileDisplayP.appendChild(shareFileWithAnyoneReadB);
   fileDisplayP.appendChild(shareFileWithAnyoneWriteB);
+  fileDisplayP.appendChild(shareFileWithEmailB);
   document.getElementById('openFilesDisplay').appendChild(fileDisplayP);
 };
 
