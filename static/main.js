@@ -4,7 +4,14 @@ window.addEventListener("load", function(event){
 
 var App = {};
 var googleUser = {};
-App.start = initializeApp;
+
+App.start = function() {
+	// Set up UI
+	setUpUpdateBtn();
+	
+	// Set up Google API
+	initializeApp();
+};
 
 function initializeApp() {
   gapi.load('auth2', initializeGoogleSignIn());
@@ -106,14 +113,20 @@ function openFiles() {
 }
 
 function displayFileContent(fileId, fileContent, fileName) {
+  // Remember open file info
+  App.fileId = fileId;
+  
   var content = document.getElementById('openedFileForm');
   content.style.display = 'block';
   document.getElementById('updateFileSucceed').style.display = 'none';
   document.getElementById('openedFileContent').value = fileContent;
   document.getElementById('openedFileName').value = fileName;
+}
+
+function setUpUpdateBtn() {
   var updateBtn = document.getElementById('updateFileBtn');
   updateBtn.addEventListener("click", function() {
-    updateFileToDriveFromApp('reader', 'anyone');
+    updateFileToDriveFromApp(App.fileId);
   });
 }
 
