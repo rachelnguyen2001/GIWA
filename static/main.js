@@ -113,7 +113,7 @@ function displayFileContent(fileId, fileContent, fileName) {
   document.getElementById('openedFileName').value = fileName;
   var updateBtn = document.getElementById('updateFileBtn');
   updateBtn.addEventListener("click", function() {
-    updateFileToDriveFromApp(fileId);
+    updateFileToDriveFromApp('reader', 'anyone');
   });
 }
 
@@ -135,18 +135,24 @@ function displayFileForOpen(fileId, fileName) {
   var fileNameText = fileName + " ";
   var fileNameDisplay = document.createTextNode(fileNameText);
   var fileOpenB = document.createElement("button");
-  fileOpenB.innerHTML = 'Open this file';
+  fileOpenB.innerHTML = 'Open';
   fileOpenB.addEventListener("click", function() {
     getFileContent(fileId, fileName);
   });
-  var shareFileB = document.createElement("button");
-  shareFileB.innerHTML = 'Share this file';
-  shareFileB.addEventListener("click", function() {
-    shareFile(fileId);
+  var shareFileWithAnyoneReadB = document.createElement("button");
+  shareFileWithAnyoneReadB.innerHTML = 'Share with anyone (read only)';
+  shareFileWithAnyoneReadB.addEventListener("click", function() {
+    shareFile(fileId, 'reader', 'anyone');
+  });
+  var shareFileWithAnyoneWriteB = document.createElement("button");
+  shareFileWithAnyoneWriteB.innerHTML = 'Share with anyone (write)';
+  shareFileWithAnyoneWriteB.addEventListener("click", function() {
+    shareFile(fileId, 'writer', 'anyone');
   });
   fileDisplayP.appendChild(fileNameDisplay);
   fileDisplayP.appendChild(fileOpenB);
-  fileDisplayP.appendChild(shareFileB);
+  fileDisplayP.appendChild(shareFileWithAnyoneReadB);
+  fileDisplayP.appendChild(shareFileWithAnyoneWriteB);
   document.getElementById('openFilesDisplay').appendChild(fileDisplayP);
 };
 
@@ -250,13 +256,14 @@ function openAllFilesFromDrive() {
   });
 };
 
-function shareFile(fileId) {
+//https://developers.google.com/drive/api/v3/reference/permissions/create
+function shareFile(fileId, role, type) {
   var accessToken = gapi.auth.getToken().access_token;
 
   fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'/permissions', {
     method: 'POST',
     headers: new Headers({ 'Authorization': 'Bearer ' + accessToken, "Content-Type": "application/json" }),
-    body: JSON.stringify({"role": "reader", "type": "anyone"}),
+    body: JSON.stringify({"role": role, "type": type}),
   }).then((response) => {
     return response.json();
   }).then(function(response) {
