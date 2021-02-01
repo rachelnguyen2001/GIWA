@@ -139,8 +139,14 @@ function displayFileForOpen(fileId, fileName) {
   fileOpenB.addEventListener("click", function() {
     getFileContent(fileId, fileName);
   });
+  var shareFileB = document.createElement("button");
+  shareFileB.innerHTML = 'Share this file';
+  shareFileB.addEventListener("click", function() {
+    shareFile(fileId);
+  });
   fileDisplayP.appendChild(fileNameDisplay);
   fileDisplayP.appendChild(fileOpenB);
+  fileDisplayP.appendChild(shareFileB);
   document.getElementById('openFilesDisplay').appendChild(fileDisplayP);
 };
 
@@ -187,10 +193,7 @@ function updateFileToDriveFromApp(fileId) {
 
 function updateFileToDrive(fileId, fileName, fileContent) {
   var file = new Blob([fileContent], {type: 'text/plain'});
-  var metadata = {
-     'name': fileName,
-     'mimeType': 'text/plain',
-   };
+  var metadata = { 'name': fileName, };
 
   var accessToken = gapi.auth.getToken().access_token;
   var form = new FormData();
@@ -244,5 +247,19 @@ function openAllFilesFromDrive() {
     for (var i=0; i < response.files.length; i++) {
       loadFileFromDrive(response.files[i].id, response.files[i].name);
     }
+  });
+};
+
+function shareFile(fileId) {
+  var accessToken = gapi.auth.getToken().access_token;
+
+  fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'/permissions', {
+    method: 'POST',
+    headers: new Headers({ 'Authorization': 'Bearer ' + accessToken, "Content-Type": "application/json" }),
+    body: JSON.stringify({"role": "reader", "type": "anyone"}),
+  }).then((response) => {
+    return response.json();
+  }).then(function(response) {
+    console.log(response);
   });
 };
