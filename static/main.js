@@ -144,7 +144,7 @@ function getFileContent(fileId, fileName) {
 };
 
 function displayFileForOpen(fileId, fileName) {
-  var fileDisplayP = document.createElement("p");
+  var fileDisplayP = document.createElement("div");
   var fileNameText = fileName + " ";
   var fileNameDisplay = document.createTextNode(fileNameText);
   var fileOpenB = document.createElement("button");
@@ -174,12 +174,25 @@ function displayFileForOpen(fileId, fileName) {
     var emailToShareWrite = prompt("Email address to share with:");
     shareFile(fileId, 'writer', 'user', emailToShareWrite);
   });
+  var getLinkB = document.createElement("button");
+  getLinkB.innerHTML = 'Get link';
+  var linkToFileP = document.createElement("p");
+  linkToFileP.id = 'link-to-file-' + fileId;
+  getLinkB.addEventListener("click", function() {
+    if (linkToFileP.innerHTML == '') {
+      getLink(fileId);
+    } else {
+      linkToFileP.innerHTML = '';
+    };
+  });
   fileDisplayP.appendChild(fileNameDisplay);
   fileDisplayP.appendChild(fileOpenB);
   fileDisplayP.appendChild(shareFileWithAnyoneReadB);
   fileDisplayP.appendChild(shareFileWithAnyoneWriteB);
   fileDisplayP.appendChild(shareFileWithEmailReadB);
   fileDisplayP.appendChild(shareFileWithEmailWriteB);
+  fileDisplayP.appendChild(getLinkB);
+  fileDisplayP.appendChild(linkToFileP);
   document.getElementById('openFilesDisplay').appendChild(fileDisplayP);
 };
 
@@ -296,4 +309,24 @@ function shareFile(fileId, role, type, email) {
   }).then(function(response) {
     console.log(response);
   });
+};
+
+function getLink(fileId) {
+  var accessToken = gapi.auth.getToken().access_token;
+
+  fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'?fields=webViewLink', {
+    method: 'GET',
+    headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+  }).then((response) => {
+    return response.json();
+  }).then(function(response) {
+    showLinkToFile(fileId, response.webViewLink);
+  });
+};
+
+function showLinkToFile(fileId, link) {
+  var linkToFileId = 'link-to-file-' + fileId;
+  var linkToFileP = document.getElementById(linkToFileId);
+  console.log(linkToFileP.innerHTML);
+  linkToFileP.innerHTML = link;
 };
