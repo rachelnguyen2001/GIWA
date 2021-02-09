@@ -8,7 +8,7 @@ var googleUser = {};
 App.start = function() {
 	// Set up UI
 	setUpUpdateBtn();
-	
+
 	// Set up Google API
 	initializeApp();
 };
@@ -115,7 +115,7 @@ function openFiles() {
 function displayFileContent(fileId, fileContent, fileName) {
   // Remember open file info
   App.fileId = fileId;
-  
+
   var content = document.getElementById('openedFileForm');
   content.style.display = 'block';
   document.getElementById('updateFileSucceed').style.display = 'none';
@@ -162,17 +162,24 @@ function displayFileForOpen(fileId, fileName) {
   shareFileWithAnyoneWriteB.addEventListener("click", function() {
     shareFile(fileId, 'writer', 'anyone');
   });
-  var shareFileWithEmailB = document.createElement("button");
-  shareFileWithEmailB.innerHTML = 'Specific person';
-  shareFileWithEmailB.addEventListener("click", function() {
-    var emailToShare = prompt("Email address to share with:");
-	// use emailToShare
+  var shareFileWithEmailReadB = document.createElement("button");
+  shareFileWithEmailReadB.innerHTML = 'Share with a specific person (read only)';
+  shareFileWithEmailReadB.addEventListener("click", function() {
+    var emailToShareRead = prompt("Email address to share with:");
+    shareFile(fileId, 'reader', 'user', emailToShareRead);
+  });
+  var shareFileWithEmailWriteB = document.createElement("button");
+  shareFileWithEmailWriteB.innerHTML = 'Share with a specific person (write)';
+  shareFileWithEmailWriteB.addEventListener("click", function() {
+    var emailToShareWrite = prompt("Email address to share with:");
+    shareFile(fileId, 'writer', 'user', emailToShareWrite);
   });
   fileDisplayP.appendChild(fileNameDisplay);
   fileDisplayP.appendChild(fileOpenB);
   fileDisplayP.appendChild(shareFileWithAnyoneReadB);
   fileDisplayP.appendChild(shareFileWithAnyoneWriteB);
-  fileDisplayP.appendChild(shareFileWithEmailB);
+  fileDisplayP.appendChild(shareFileWithEmailReadB);
+  fileDisplayP.appendChild(shareFileWithEmailWriteB);
   document.getElementById('openFilesDisplay').appendChild(fileDisplayP);
 };
 
@@ -277,13 +284,13 @@ function openAllFilesFromDrive() {
 };
 
 //https://developers.google.com/drive/api/v3/reference/permissions/create
-function shareFile(fileId, role, type) {
+function shareFile(fileId, role, type, email) {
   var accessToken = gapi.auth.getToken().access_token;
 
   fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'/permissions', {
     method: 'POST',
     headers: new Headers({ 'Authorization': 'Bearer ' + accessToken, "Content-Type": "application/json" }),
-    body: JSON.stringify({"role": role, "type": type}),
+    body: JSON.stringify({"role": role, "type": type, "emailAddress": email}),
   }).then((response) => {
     return response.json();
   }).then(function(response) {
