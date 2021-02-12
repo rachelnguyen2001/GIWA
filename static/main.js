@@ -180,7 +180,7 @@ function displayFileForOpen(fileId, fileName) {
   var linkToFileP = document.createElement("p");
   linkToFileP.id = 'link-to-file-' + fileId;
   getLinkB.addEventListener("click", function() {
-    if (linkToFileP.innerHTML == '') {
+    if (linkToFileP.innerHTML === '') {
       getLink(fileId);
     } else {
       linkToFileP.innerHTML = '';
@@ -191,6 +191,17 @@ function displayFileForOpen(fileId, fileName) {
   deleteB.addEventListener("click", function() {
     deleteFile(fileId);
   });
+  var showVersionDl = document.createElement("dl");
+  showVersionDl.id = 'show-version-dl' + fileId;
+  var showVersionB = document.createElement("button");
+  showVersionB.innerHTML = 'Show all version(s)';
+  showVersionB.addEventListener("click", function() {
+    if (showVersionDl.innerHTML === '') {
+      getAllVersionsFromDrive(fileId);
+    } else {
+      showVersionDl.innerHTML = '';
+    };
+  });
   fileDisplayP.appendChild(fileNameDisplay);
   fileDisplayP.appendChild(fileOpenB);
   fileDisplayP.appendChild(shareFileWithAnyoneReadB);
@@ -199,6 +210,8 @@ function displayFileForOpen(fileId, fileName) {
   fileDisplayP.appendChild(shareFileWithEmailWriteB);
   fileDisplayP.appendChild(getLinkB);
   fileDisplayP.appendChild(deleteB);
+  fileDisplayP.appendChild(showVersionB);
+  fileDisplayP.appendChild(showVersionDl);
   fileDisplayP.appendChild(linkToFileP);
   document.getElementById('openFilesDisplay').appendChild(fileDisplayP);
 };
@@ -358,4 +371,33 @@ function makeFileDisappear(fileId, response) {
     var fileDisplayP = document.getElementById(fileDisplayId);
     fileDisplayP.remove();
   }
+};
+
+// https://developers.google.com/drive/api/v3/reference/revisions/list#try-it
+function getAllVersionsFromDrive(fileId) {
+  var accessToken = gapi.auth.getToken().access_token;
+
+  fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'/revisions', {
+      method: 'GET',
+      headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+  }).then((response) => {
+      return response.json();
+  }).then(function(response) {
+      showAllVersions(fileId, response.revisions);
+  });
+};
+
+function showAllVersions(fileId, revisions) {
+  var showVersionId = 'show-version-dl' + fileId;
+  var showVersionDl = document.getElementById(showVersionId);
+  var showVersion = '';
+
+  for (var i = 0; i < revisions.length; i++) {
+    var currentVersionOrder = "<dt> Version " + i  + "</dt>";
+    var currentVersionModTime = "<dd> Last modified time: " + revisions[i].modifiedTime + "</dd>";
+    showVersion += currentVersionOrder;
+    showVersion += currentVersionModTime;
+  };
+
+  showVersionDl.innerHTML = showVersion;
 }
