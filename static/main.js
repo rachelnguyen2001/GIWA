@@ -145,6 +145,7 @@ function getFileContent(fileId, fileName) {
 
 function displayFileForOpen(fileId, fileName) {
   var fileDisplayP = document.createElement("div");
+  fileDisplayP.id = 'file-display-p' + fileId;
   var fileNameText = fileName + " ";
   var fileNameDisplay = document.createTextNode(fileNameText);
   var fileOpenB = document.createElement("button");
@@ -185,6 +186,11 @@ function displayFileForOpen(fileId, fileName) {
       linkToFileP.innerHTML = '';
     };
   });
+  var deleteB = document.createElement("button");
+  deleteB.innerHTML = 'Delete';
+  deleteB.addEventListener("click", function() {
+    deleteFile(fileId);
+  });
   fileDisplayP.appendChild(fileNameDisplay);
   fileDisplayP.appendChild(fileOpenB);
   fileDisplayP.appendChild(shareFileWithAnyoneReadB);
@@ -192,6 +198,7 @@ function displayFileForOpen(fileId, fileName) {
   fileDisplayP.appendChild(shareFileWithEmailReadB);
   fileDisplayP.appendChild(shareFileWithEmailWriteB);
   fileDisplayP.appendChild(getLinkB);
+  fileDisplayP.appendChild(deleteB);
   fileDisplayP.appendChild(linkToFileP);
   document.getElementById('openFilesDisplay').appendChild(fileDisplayP);
 };
@@ -330,3 +337,25 @@ function showLinkToFile(fileId, link) {
   console.log(linkToFileP.innerHTML);
   linkToFileP.innerHTML = link;
 };
+
+// https://developers.google.com/drive/api/v3/reference/files/delete
+function deleteFile(fileId) {
+  var accessToken = gapi.auth.getToken().access_token;
+
+  fetch('https://www.googleapis.com/drive/v3/files/'+fileId, {
+      method: 'DELETE',
+      headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+  }).then((response) => {
+      return response.text();
+  }).then(function(response) {
+      makeFileDisappear(fileId, response);
+  });
+};
+
+function makeFileDisappear(fileId, response) {
+  if (response === "") {
+    var fileDisplayId = 'file-display-p' + fileId;
+    var fileDisplayP = document.getElementById(fileDisplayId);
+    fileDisplayP.remove();
+  }
+}
