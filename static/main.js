@@ -13,10 +13,16 @@ App.start = function() {
 	initializeApp();
 };
 
+/**
+ * Set up Google API
+ */
 function initializeApp() {
   gapi.load('auth2', initializeGoogleSignIn());
 };
 
+/**
+ * Set up Google signin
+ */
 function initializeGoogleSignIn() {
   auth2 = gapi.auth2.init({
     // Client ID retrieved from above
@@ -25,18 +31,25 @@ function initializeGoogleSignIn() {
     // Access files in the user's Google Drive
     scope: 'https://www.googleapis.com/auth/drive.file'
   });
+
   detectSignin(document.getElementById('customBtn'));
 };
 
+/**
+ * Detect when users signin
+ *
+ * @param element the element to which to attach the click handler
+ * @link https://developers.google.com/identity/sign-in/web/reference
+ */
 function detectSignin(element) {
-  console.log(element.id);
   auth2.attachClickHandler(element, {}, signInSucceed, signInFail);
 };
 
-function signInFail(error) {
-  alert(JSON.stringify(error, undefined, 2));
-};
-
+/**
+ * Show users' information on the web app when signin succeeds
+ *
+ * @param googleUser the signedin user
+ */
 function signInSucceed(googleUser) {
   var userInfo = getUserInfo(googleUser);
   document.getElementById('name').innerText = "Name: " + userInfo[0];
@@ -45,10 +58,30 @@ function signInSucceed(googleUser) {
   document.getElementById('btnPanel').style.display = 'block';
 };
 
+/**
+ * Get users' information from Google when signin succeeds
+ *
+ * @param googleUser the signedin user
+ * @link https://developers.google.com/identity/sign-in/web/people
+ */
 function getUserInfo(googleUser) {
   return [googleUser.getBasicProfile().getName(), googleUser.getBasicProfile().getEmail()];
 };
 
+/**
+ * Show errors to users when signin fails
+ *
+ * @param error the error which causes signin to fail
+ */
+function signInFail(error) {
+  alert(JSON.stringify(error, undefined, 2));
+};
+
+/**
+ * Show empty fields on the web app for users to fill in when they want to
+ * create a new file in Google Drive
+ *
+ */
 function createFile() {
   document.getElementById('newFileForm').style.display = 'block';
   document.getElementById('newFileName').value = '';
@@ -60,20 +93,36 @@ function createFile() {
   document.getElementById('openFilesDisplay').style.display = 'none';
 };
 
+/**
+ * Get data about the new file users want to create and save the file to Google Drive
+ *
+ */
 function saveFileToDriveFromApp() {
   var fileName = document.getElementById('newFileName').value;
   var fileContent = document.getElementById('newFileContent').value;
   saveFileToDrive(fileName, fileContent);
 }
 
+/**
+ * Create a new file in Google Drive
+ *
+ * @param {string} fileName name of the file to be created
+ * @param {string} fileContent content of the file to be created
+ * @link https://developers.google.com/drive/api/v3/manage-uploads
+ */
 function saveFileToDrive(fileName, fileContent) {
+  // content of the file to be created
   var file = new Blob([fileContent], {type: 'text/plain'});
+
+  // metadata of the file to be created
   var metadata = {
     'name': fileName,
     'mimeType': 'text/plain',
   };
 
   var accessToken = gapi.auth.getToken().access_token;
+
+  // format the file's metadata and content
   var form = new FormData();
   form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
   form.append('file', file);
@@ -86,10 +135,14 @@ function saveFileToDrive(fileName, fileContent) {
     return response.json();
   }).then(function(response) {
     saveFileToDriveSucceed();
-    console.log(response);
   });
+
 };
 
+/**
+ * Show fileName's field to users so they can enter name of the file they want to open
+ *
+ */
 function openFilesFormDisplay() {
   document.getElementById('saveFileSucceed').style.display = 'none';
   document.getElementById('newFileForm').style.display = 'none';
@@ -101,35 +154,64 @@ function openFilesFormDisplay() {
   document.getElementById('updateFileSucceed').style.display = 'none';
 };
 
+/**
+ * Show all files with the name which users have entered
+ *
+ */
 function openFiles() {
   var openFilesDisplay = document.getElementById('openFilesDisplay');
   openFilesDisplay.style.display = 'block';
   openFilesDisplay.innerHTML = "";
+
   document.getElementById('foundFiles').style.display = 'block';
-  var fileName = document.getElementById('openFileName').value;
+
   document.getElementById('openedFileName').value = '';
   document.getElementById('openedFileContent').value = '';
+
+  var fileName = document.getElementById('openFileName').value;
+
   loadFilesFromDrive(fileName);
 }
 
+/**
+ * Show a file's name and content to users
+ * @param {string} fileId Google Drive id of the file
+ * @param {string} fileContent content of the file
+ * @param {string} fileName name of the file
+ */
 function displayFileContent(fileId, fileContent, fileName) {
   // Remember open file info
   App.fileId = fileId;
 
   var content = document.getElementById('openedFileForm');
   content.style.display = 'block';
+
   document.getElementById('updateFileSucceed').style.display = 'none';
   document.getElementById('openedFileContent').value = fileContent;
   document.getElementById('openedFileName').value = fileName;
 }
 
+/**
+ * Ensure a file is updated every time its according update button is clicked
+ *
+ */
 function setUpUpdateBtn() {
   var updateBtn = document.getElementById('updateFileBtn');
+
   updateBtn.addEventListener("click", function() {
     updateFileToDriveFromApp(App.fileId);
   });
+
 }
 
+/**
+ * Get a file's content from Google Drive
+ *
+ * @param {string} fileId Google Drive id of the file
+ * @param {string} fileName name of the file
+ * @link https://developers.google.com/drive/api/v3/reference/files/get
+ * @link https://developers.google.com/drive/api/v3/manage-downloads#node.js
+ */
 function getFileContent(fileId, fileName) {
   var accessToken = gapi.auth.getToken().access_token;
 
@@ -141,40 +223,62 @@ function getFileContent(fileId, fileName) {
   }).then(function(fileContent) {
     displayFileContent(fileId, fileContent, fileName);
   });
+
 };
 
+/**
+ * Show a file's name and buttons that allow users to interact with the according file
+ * @param {string} fileId Google Drive id of the file
+ * @param {string} fileName name of the file
+ *
+ */
 function displayFileForOpen(fileId, fileName) {
+  // div element for the current file
   var fileDisplayP = document.createElement("div");
   fileDisplayP.id = 'file-display-p' + fileId;
+
+  // show the file's name to users
   var fileNameText = fileName + " ";
   var fileNameDisplay = document.createTextNode(fileNameText);
+
+  // a button to open the file
   var fileOpenB = document.createElement("button");
   fileOpenB.innerHTML = 'Open';
   fileOpenB.addEventListener("click", function() {
     getFileContent(fileId, fileName);
   });
+
+  // a button to share the file with anyone (read only)
   var shareFileWithAnyoneReadB = document.createElement("button");
   shareFileWithAnyoneReadB.innerHTML = 'Share with anyone (read only)';
   shareFileWithAnyoneReadB.addEventListener("click", function() {
     shareFile(fileId, 'reader', 'anyone');
   });
+
+  // a button to share the file with anyone (write)
   var shareFileWithAnyoneWriteB = document.createElement("button");
   shareFileWithAnyoneWriteB.innerHTML = 'Share with anyone (write)';
   shareFileWithAnyoneWriteB.addEventListener("click", function() {
     shareFile(fileId, 'writer', 'anyone');
   });
+
+  // a button to share the file with a specific person (read only)
   var shareFileWithEmailReadB = document.createElement("button");
   shareFileWithEmailReadB.innerHTML = 'Share with a specific person (read only)';
   shareFileWithEmailReadB.addEventListener("click", function() {
     var emailToShareRead = prompt("Email address to share with:");
     shareFile(fileId, 'reader', 'user', emailToShareRead);
   });
+
+  // a button to share the file with a specific person (write)
   var shareFileWithEmailWriteB = document.createElement("button");
   shareFileWithEmailWriteB.innerHTML = 'Share with a specific person (write)';
   shareFileWithEmailWriteB.addEventListener("click", function() {
     var emailToShareWrite = prompt("Email address to share with:");
     shareFile(fileId, 'writer', 'user', emailToShareWrite);
   });
+
+  // a button to get a Google Drive link to the file
   var getLinkB = document.createElement("button");
   getLinkB.innerHTML = 'Get link';
   var linkToFileP = document.createElement("p");
@@ -186,11 +290,15 @@ function displayFileForOpen(fileId, fileName) {
       linkToFileP.innerHTML = '';
     };
   });
+
+  // a button to delete the file
   var deleteB = document.createElement("button");
   deleteB.innerHTML = 'Delete';
   deleteB.addEventListener("click", function() {
     deleteFile(fileId);
   });
+
+  // a button to show all saved versions of the file
   var showVersionDl = document.createElement("dl");
   showVersionDl.id = 'show-version-dl' + fileId;
   var showVersionB = document.createElement("button");
@@ -202,6 +310,7 @@ function displayFileForOpen(fileId, fileName) {
       showVersionDl.innerHTML = '';
     };
   });
+
   fileDisplayP.appendChild(fileNameDisplay);
   fileDisplayP.appendChild(fileOpenB);
   fileDisplayP.appendChild(shareFileWithAnyoneReadB);
@@ -213,9 +322,17 @@ function displayFileForOpen(fileId, fileName) {
   fileDisplayP.appendChild(showVersionB);
   fileDisplayP.appendChild(showVersionDl);
   fileDisplayP.appendChild(linkToFileP);
+
   document.getElementById('openFilesDisplay').appendChild(fileDisplayP);
 };
 
+/**
+ * Load a file from Google Drive
+ * @param {string} fileId Google Drive id of the file
+ * @param {string} fileName name of the file
+ * @link https://developers.google.com/drive/api/v3/reference/files/get
+ *
+ */
 function loadFileFromDrive(fileId, fileName) {
   var accessToken = gapi.auth.getToken().access_token;
 
@@ -225,13 +342,20 @@ function loadFileFromDrive(fileId, fileName) {
   }).then((response) => {
     return response.json();
   }).then(function(response) {
+
     if (response.trashed == false) {
       displayFileForOpen(fileId, fileName);
-    }
+    };
+
   });
 
 };
 
+/**
+ * Load all files of a given from Google Drive
+ * @param {string} fileName name of the file
+ * @link https://developers.google.com/drive/api/v3/reference/files/list
+ */
 function loadFilesFromDrive(fileName) {
   var accessToken = gapi.auth.getToken().access_token;
 
@@ -241,22 +365,34 @@ function loadFilesFromDrive(fileName) {
   }).then((response) => {
     return response.json();
   }).then(function(response) {
-    console.log(response);
 
     for (var i=0; i < response.files.length; i++) {
       if (fileName == response.files[i].name) {
         loadFileFromDrive(response.files[i].id, fileName);
       }
-    }
+    };
+
   });
 };
 
+/**
+ * Get a file's updated name and content from users
+ * @param {string} fileId Google Drive id of the file
+ *
+ */
 function updateFileToDriveFromApp(fileId) {
   var fileName = document.getElementById('openedFileName').value;
   var fileContent = document.getElementById('openedFileContent').value;
   updateFileToDrive(fileId, fileName, fileContent);
 };
 
+/**
+ * Update a file's name and content to Google Drive
+ * @param {string} fileId Google Drive id of the file
+ * @param {string} fileName name of the file
+ * @param {string} fileContent content of the file
+ * @link https://developers.google.com/drive/api/v3/reference/files/update
+ */
 function updateFileToDrive(fileId, fileName, fileContent) {
   var file = new Blob([fileContent], {type: 'text/plain'});
   var metadata = { 'name': fileName, };
@@ -273,19 +409,31 @@ function updateFileToDrive(fileId, fileName, fileContent) {
   }).then((response) => {
     return response.json();
   }).then(function(response) {
-    console.log(response);
     updateFileToDriveSucceed();
   });
 };
 
+
+/**
+ * Inform users when a file is successfully updated
+ *
+ */
 function updateFileToDriveSucceed() {
   document.getElementById('updateFileSucceed').style.display = 'block';
 };
 
+/**
+ * Inform users when a file is successfully created
+ *
+ */
 function saveFileToDriveSucceed() {
   document.getElementById('saveFileSucceed').style.display = 'block';
 };
 
+/**
+ * Show all files in users' app-specific folder on the web app
+ *
+ */
 function openAllFiles() {
   document.getElementById('newFileForm').style.display = 'none';
   document.getElementById('openFilesForm').style.display = 'none';
@@ -299,6 +447,11 @@ function openAllFiles() {
   openAllFilesFromDrive();
 }
 
+/**
+ * Get all files from Google Drive
+ * @link https://developers.google.com/drive/api/v3/reference/files/list
+ *
+ */
 function openAllFilesFromDrive() {
   var accessToken = gapi.auth.getToken().access_token;
 
@@ -316,7 +469,15 @@ function openAllFilesFromDrive() {
   });
 };
 
-//https://developers.google.com/drive/api/v3/reference/permissions/create
+/**
+ * Update a file's permission
+ * @param {string} fileId Google Drive id of the file
+ * @param {string} role read/write permission
+ * @param {string} type anyone/a specific user permission
+ * @param {string} email email of the person with which the file is shared
+ * @link https://developers.google.com/drive/api/v3/reference/permissions/create
+ *
+ */
 function shareFile(fileId, role, type, email) {
   var accessToken = gapi.auth.getToken().access_token;
 
@@ -400,4 +561,4 @@ function showAllVersions(fileId, revisions) {
   };
 
   showVersionDl.innerHTML = showVersion;
-}
+};
